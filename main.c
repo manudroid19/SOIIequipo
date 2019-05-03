@@ -25,5 +25,13 @@ void *trabajo(void *tid)  {                                  // Código para cad
      printf("************ACABE! Soy %d\n",thid);
    }
 
-
-   
+   main() {
+     int i, j;
+     pthread_t th[Pmax];
+     int tiempo_ini, tiempo_fin;       // Para medir tiempo
+     for (i=0;i<Nmax;i++) pthread_mutex_destroy(&recurso[i]);
+     for (i=0;i<Nmax;i++) pthread_mutex_init(&recurso[i], NULL);
+     tiempo_ini=time(NULL);
+     for (i=0;i<Pmax;i++) pthread_create(&th[i], NULL, trabajo, (void *)i);
+     for (i=0;i<Pmax;i++) pthread_join(th[i], NULL);
+     tiempo_fin=time(NULL);printf(“Acabado en %d segundos\n”, tiempo_fin-tiempo_ini); for (i=0;i<Nmax;i++) pthread_mutex_destroy(&recurso[i]);           }
