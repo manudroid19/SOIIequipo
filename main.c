@@ -13,3 +13,17 @@ void *trabajo(void *tid)  {                                  // Código para cad
        ya=1;
        for (k=0;k<i;k++) if (mis_recursos[k]==j) ya=0;
      }
+     mis_recursos[i]=j;         // Incluyo recurso en mi lista
+     printf("Soy %d y quiero el recurso %d\n",thid,j);
+     pthread_mutex_lock(&recurso[j]);             // Adquiero el recurso
+     printf("           Soy %d y tengo el recurso %d\n",thid,j);
+     for (k=0;k<10000;k++) x+=sqrt(sqrt(k+0.1));      // Trabajo intrascendente
+     k= (int) Tmin+(Tmax-Tmin+1)*(rand()/(RAND_MAX+1.0)) + 1;
+     sleep(k);                                                     // Espero un tiempo aleatorio
+   }
+   for (i=0;i<Nmax;i++)  pthread_mutex_unlock(&recurso[mis_recursos[i]]);
+     printf("************ACABE! Soy %d\n",thid);
+   }
+
+
+   
