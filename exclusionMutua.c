@@ -5,15 +5,19 @@
 #include <math.h>
 #include <pthread.h>
 #include <unistd.h>
+#include "cola.h"
 
 #define Tmin 0 // Tiempo mínimo de espera tras adquirir recurso
 #define Tmax 2 // Tiempo máximo de espera tras adquirir recurso
 #define Nmax 4 // Recursos
 #define Pmax 3 // Threads
 
-mqd_t colas [Nmax]; //Para las solicitudes
+//mqd_t colas [Nmax];//Para las solicitudes
 pthread_mutex_t recurso[Nmax];
-pthread_mutex_t demonio[Nmax];
+//pthread_mutex_t demonio[Nmax];
+cola buffer[Nmax];
+
+int asignados[Nmax];//Array que indica a qué recurso puede acceder cada hilo
 
 void trabajo(void * tid) { // Código para cada thread
   int thid, i, j, k, ya, mis_recursos[Nmax];
@@ -45,21 +49,45 @@ void *trabajoDemonio (void * tid){
   //Cada demonio tiene que tener uns cola de solicitud
 
   int thid=tid;
+  int solicitud;
 
+  while(1){
+    while (esVaciaCola(buffer[thid])){
+      //Espera mientras que no haya ninguna solicitud
+    }
+    //Cuando se reciba una solicitud
+    solicitud=primero(buffer[thid]);
+    asignados[solicitud]=thid;  //Indicamos que puede acceder al recurso
 
+    while(asignados[solicitud]==thid){
+      //Mientras que no haya acabado de usar el recurso espera
+    }
+  }
 }
 
 
 int main() {
   int i;
-  pthread_t th[Pmax];
+  pthread_t th[Pmax],thDemonio[Nmax];;
   int tiempo_ini, tiempo_fin; // Para medir tiempo
+
+  //Inicializamos asignados
+  for(int i=0;i<Nmax;i++){
+    asignados[i]=-1;
+  }
+
+  //Creamos las colas de solicitudes
+  for(int i=0;i<Nmax;i++){
+    creaCola(&buffer[i]);
+  }
+
+  //Inicializamos los mutex del recurso
   for (i = 0; i < Nmax; i++) pthread_mutex_destroy( & recurso[i]);
   for (i = 0; i < Nmax; i++) pthread_mutex_init( & recurso[i], NULL);
 
   //Creamos Nmax demonios para cada recurso
 
-  for (i = 0; i < Nmax; i++) pthread_create( & th[i], NULL, &trabajoDemonio, (void * ) (intptr_t) i);
+  for (i = 0; i < Nmax; i++) pthread_create( & thDemonio[i], NULL, &trabajoDemonio, (void * ) (intptr_t) i);
 
   tiempo_ini = time(NULL);
   for (i = 0; i < Pmax; i++) pthread_create( & th[i], NULL, &trabajo, (void * ) (intptr_t) i);
