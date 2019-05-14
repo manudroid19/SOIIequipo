@@ -20,11 +20,14 @@ cola buffer[Nmax];
 int asignados[Nmax];//Array que indica a qué recurso puede acceder cada hilo
 
 void trabajo(void * tid) { // Código para cada thread
-  int thid, i, j, k, ya, mis_recursos[Nmax];
-  double x = 0;
+  int thid, Ri;
   thid = (intptr_t) tid;
   srand(thid + time(NULL));
-  for (i = 0; i < Nmax; i++) { // Adquiero nuevos recursos
+  Ri = (int)(Nmax) * (rand() / (RAND_MAX + 1.0)); //Numero de recursos aleatorios <=N
+  int i, j, k, ya, mis_recursos[Nmax];
+  double x = 0;
+
+  for (i = 0; i < Ri; i++) { // Adquiero nuevos recursos
     ya = 0;
     while (ya == 0) { // Selecciono un recurso que no tengo
       j = (int)(Nmax) * (rand() / (RAND_MAX + 1.0));

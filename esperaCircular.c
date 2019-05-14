@@ -14,11 +14,14 @@
 pthread_mutex_t recurso[Nmax];
 
 void * trabajo(void * tid) { // Código para cada thread
-  int thid, i, j, k, ya, mi_recurso=-1;
-  double x = 0;
+  int thid, Ri;
   thid = (intptr_t) tid;
   srand(thid + time(NULL));
-  for (int i=0;i<Nmax;i++){
+  Ri = (int)(Nmax) * (rand() / (RAND_MAX + 1.0)); //Numero de recursos aleatorios <=N
+  int i, j, k, ya, mi_recurso=-1;
+  double x = 0;
+
+  for (int i=0;i<Ri;i++){
   	j=i;
   	if (mi_recurso < j) mi_recurso = j; // Incluyo recurso en mi lista en caso de ser mayor que el que ya tenemos
     printf("Soy %d y quiero el recurso %d\n", thid, j);
