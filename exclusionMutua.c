@@ -40,7 +40,9 @@ void trabajo(void * tid) { // Código para cada thread
 
     pthread_mutex_lock( & recurso[j]); // Adquiero el recurso
     insertarCola(buffer[j],thid);
-    pthread_mutex_unlock( &recurso[mis_recursos[i]]);
+    pthread_mutex_unlock( &recurso[j]);
+
+    while(asignados[thid]!=j){} //Espero a que me sea asignado el recurso
 
     mis_recursos[i] = j; // Incluyo recurso en mi lista
     printf(" Soy %d y tengo el recurso %d\n", thid, j);
