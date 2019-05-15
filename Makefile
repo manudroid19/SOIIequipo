@@ -5,10 +5,7 @@ CFLAGS := -Wall -pedantic -I. -pthread -lm
 OBJS :=
 DEPS :=
 
-all: contencionEspera base
-
-contencionEspera: $(OBJS) contencionEspera.c $(DEPS)
-	$(CC) contencionEspera.c -o contencionEspera $(CFLAGS)
+all: base
 
 base: $(OBJS) base.c $(DEPS)
 	$(CC) base.c -o base $(CFLAGS)
