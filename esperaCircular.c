@@ -8,8 +8,8 @@
 
 #define Tmin 0 // Tiempo mínimo de espera tras adquirir recurso
 #define Tmax 2 // Tiempo máximo de espera tras adquirir recurso
-#define Nmax 2 // Recursos
-#define Pmax 2 // Threads
+#define Nmax 7// Recursos
+#define Pmax 5 // Threads
 
 pthread_mutex_t recurso[Nmax];
 
@@ -18,19 +18,20 @@ void * trabajo(void * tid) { // Código para cada thread
   thid = (intptr_t) tid;
   srand(thid + time(NULL));
   Ri = (int)(Nmax) * (rand() / (RAND_MAX + 1.0)); //Numero de recursos aleatorios <=N
-  int i, j, k, ya, mi_recurso=-1;
+  int i, j, k,mi_recurso=-1,rec=0;//inicializamos el recurso a -1 para provocar que se pueda asignar el primer recurso (0) al primer hilo que entra en la función trabajo
   double x = 0;
 
   for (int i=0;i<Ri;i++){
-  	j=i;
-  	if (mi_recurso < j) mi_recurso = j; // Incluyo recurso en mi lista en caso de ser mayor que el que ya tenemos
+  	j=rec;//Asigno el valor 
+	rec++;
+  	if (mi_recurso < j) mi_recurso = j; //Cambio el recurso del hilo en caso de que este nuevo (j) sea mayor que el que ya tenía.
     printf("Soy %d y quiero el recurso %d\n", thid, j);
     pthread_mutex_lock(& recurso[j]); // Adquiero el recurso
     printf(" Soy %d y tengo el recurso %d\n", thid, j);
     for (k = 0; k < 10000; k++) x += sqrt(sqrt(k + 0.1)); // Trabajo intrascendente
     k = (int) Tmin + (Tmax - Tmin + 1) * (rand() / (RAND_MAX + 1.0)) + 1;
     sleep(k); // Espero un tiempo aleatorio
-    pthread_mutex_unlock( & recurso[j]);
+    pthread_mutex_unlock( & recurso[j]); //Suelto el recurso
   }
   printf("************ACABE! Soy %d\n", thid);
   pthread_exit(NULL);
