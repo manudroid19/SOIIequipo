@@ -61,10 +61,10 @@ int primero(cola C)
 int insertarCola(cola *C, int E)
 {
     ((*C)->final)->sig=(puntero)malloc(sizeof(struct celdaCola));
-    if ((*C)->final->sig == NULL)
+    if ((*C)->final->sig == NULL){
         printf("Error: Memoria insuficiente\n");
         return -1;
-    else{
+    }else{
         (*C)->final=((*C)->final)->sig;
         ((*C)->final)->elemento=E;
    // printf("Insertado %d\n",E);
