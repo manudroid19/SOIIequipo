@@ -17,6 +17,8 @@
 /*En el grafo los Pmax primeros elementos de la matriz son los threads y los
 * Nmax elementos siguientes son los recursos.
 */
+
+//Grafo y vector auxiliar para el algoeritmo DFS
 int G[Nmax + Pmax][Nmax + Pmax], visited[Nmax + Pmax];
 int visitados = 0;
 int filaModif; //Almaceno el último hilo que solicitó un recurso
@@ -146,6 +148,7 @@ int main() {
 
   return EXIT_SUCCESS;
 }
+
 
 //Función que deshace un ciclo del grafo liberando el recurso j y desbloqueando
 //el recurso
