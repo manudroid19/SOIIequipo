@@ -40,8 +40,8 @@ void * trabajo(void * tid) { // Código para cada thread
     printf("Soy %d y quiero el recurso %d\n", thid, j);
 
     pthread_mutex_lock(&recurso[j]); // Adquiero el recurso
-    while(insertarCola(&buffer[j],thid)==-1){
-      sleep(3);
+    while(insertarCola(&buffer[j],thid)==-1){ //Intento insertarlo
+      sleep(3); //Si no lo consigo espero y vuelvo a intentarlo
     }
     pthread_mutex_unlock( &recurso[j]);
 
