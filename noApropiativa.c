@@ -17,7 +17,7 @@
 /*En el grafo los Pmax primeros elementos de la matriz son los threads y los
 * Nmax elementos siguientes son los recursos.
 */
-int G[Nmax + Pmax][Nmax + Pmax], visited[Nmax + Pmax], fin;
+int G[Nmax + Pmax][Nmax + Pmax], visited[Nmax + Pmax];
 int visitados = 0;
 int filaModif; //Almaceno el último hilo que solicitó un recurso
 int colModif; //Almaceno el último recurso solicitado por un hilo
@@ -32,13 +32,17 @@ sem_t *comprobador;
 pthread_mutex_t recurso[Nmax], accesoGrafo;
 
 void * trabajo(void * tid) { // Código para cada thread
-  int thid, i, j, k, ya, mis_recursos[Nmax];
+  srand(time(NULL));
+  int numRecursos = (int)(Nmax) * (rand() / (RAND_MAX + 1.0)) + 1;
+  int thid, i, j, k, ya, mis_recursos[numRecursos];
   double x = 0;
   thid = (intptr_t) tid;
   srand(thid + time(NULL));
   comprobador = sem_open("Comprobador", O_CREAT, S_IRWXU, 0);
 
-  for (i = 0; i < Nmax; i++) { // Adquiero nuevos recursos
+  printf("*********Soy %d y quiero obtener %d recursos\n", thid, numRecursos);
+
+  for (i = 0; i < numRecursos; i++) { // Adquiero nuevos recursos
     ya = 0;
 
     while (ya == 0) { // Selecciono un recurso que no tengo
@@ -54,7 +58,7 @@ void * trabajo(void * tid) { // Código para cada thread
     G[thid][j + Pmax] = 1; //Se añade una arista desde el hilo thid hasta el recurso j
     filaModif = thid;
     colModif = j;
-    imprimirGrafo();
+    //imprimirGrafo();
     sem_post(comprobador);
     pthread_mutex_unlock(&accesoGrafo);
 
@@ -63,22 +67,27 @@ void * trabajo(void * tid) { // Código para cada thread
     printf(" Soy %d y tengo el recurso %d\n", thid, j + Pmax);
     G[thid][j + Pmax] = 0;
     G[j + Pmax][thid] = 1; //Se añade una arista desde el  recurso j hasta el hilo thid
-    imprimirGrafo();
+    //imprimirGrafo();
     pthread_mutex_unlock(&accesoGrafo);
 
     for (k = 0; k < 10000; k++) x += sqrt(sqrt(k + 0.1)); // Trabajo intrascendente
     k = (int) Tmin + (Tmax - Tmin + 1) * (rand() / (RAND_MAX + 1.0)) + 1;
     sleep(k); // Espero un tiempo aleatorio
   }
-  for (i = 0; i < Nmax; i++) pthread_mutex_unlock( & recurso[mis_recursos[i]]);
+  for (i = 0; i < numRecursos; i++){
+    pthread_mutex_unlock( & recurso[mis_recursos[i]]);
+    G[i + Pmax][thid] = 0;
+  }
+
   printf("************ACABE! Soy %d\n", thid);
+
   pthread_exit(NULL);
 }
 
 void *hiloComprobador(void *tid){
   comprobador = sem_open("Comprobador", O_CREAT, S_IRWXU, 0);
 
-  while(!fin){
+  while(1){
     sem_wait(comprobador);
     pthread_mutex_lock(&accesoGrafo);
     if(hayCiclo())
@@ -100,10 +109,7 @@ int main() {
     visited[i]=0;
   }
 
-
   sem_unlink("Comprobador");
-
-  fin = 0; //Variable para que el hilo comprobador sepa cuando terminar
 
   for (i = 0; i < Nmax; i++) pthread_mutex_destroy( & recurso[i]);
   pthread_mutex_destroy(&accesoGrafo);
@@ -116,20 +122,16 @@ int main() {
   for (i = 0; i < Pmax; i++) pthread_join(th[i], NULL);
   tiempo_fin = time(NULL);
 
-  fin=1;
-
-  pthread_join(fio, NULL);
-
   printf("Acabado en %d segundos \n", tiempo_fin - tiempo_ini);
   for (i = 0; i < Nmax; i++) pthread_mutex_destroy( & recurso[i]);
-
+  
   return EXIT_SUCCESS;
 }
 
 void deshacerCiclo(int i, int j){
-  printf("Libero el recurso %d \n", j);
+  printf("Libero el recurso %d \n", j + Pmax);
   for(int k=0; k < Pmax; k++)
-    G[j][k] = 0;
+    G[j + Pmax][k] = 0;
   pthread_mutex_unlock(&recurso[j]);
 }
 
@@ -145,12 +147,14 @@ int hayCiclo(){
   for(int i=0; i < Nmax + Pmax; i++)
     visited[i] = 0;
 
-  printf("filaModif %d, visitados %d, nodosVisitados: ", filaModif, visitados);
+  /*printf("filaModif %d, visitados %d, nodosVisitados: ", filaModif, visitados);
   for (int i = 0; i < Nmax + Pmax; i++)
     printf("%d ", nodosVisitados[i]);
+  */
   printf("\n");
 
   if(busquedaIguales(nodosVisitados)){
+    visitados = 0;
     free(nodosVisitados);
     return 1;
   }
