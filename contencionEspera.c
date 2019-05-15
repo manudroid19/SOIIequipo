@@ -32,17 +32,17 @@ void * trabajo(void * tid) { // Código para cada thread
     }
     mis_recursos[i] = j; // Incluyo recurso en mi lista
     printf("Soy %d y quiero el recurso %d\n", thid, j);
-    int r = pthread_mutex_trylock( & recurso[j]); // Adquiero el recurso
-    if (r!=0){
+    int r = pthread_mutex_trylock( & recurso[j]); // Intento adquirir el recurso
+    if (r!=0){ //si no he podido conseguirlo
       printf("No he podido obtener el recurso %d\n", j);
-      for (int ii = 0; ii < i; ii++) {
+      for (int ii = 0; ii < i; ii++) { //libero todos los recursos que tenia
         pthread_mutex_unlock( & recurso[mis_recursos[ii]]);
         printf("\tLiberado el recurso %d\n", mis_recursos[ii]);
       }
-      sleep(rand()%4);
-      i=-1;
-      continue;
-    }
+      sleep(rand()%5);// espero un tiempo aleatorio para que otros procesos acaben
+      i=-1; //vuelvo con la i para que pase a 0 y vuelva empezar
+      continue; //vuelvo al bucle
+    }// si he conseguido el recurso, vuelvo al estado habitual
     printf(" Soy %d y tengo el recurso %d\n", thid, j);
     for (k = 0; k < 10000; k++) x += sqrt(sqrt(k + 0.1)); // Trabajo intrascendente
     k = (int) Tmin + (Tmax - Tmin + 1) * (rand() / (RAND_MAX + 1.0)) + 1;
