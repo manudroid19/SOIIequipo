@@ -70,10 +70,13 @@ void *trabajoDemonio (void * tid){
 
       pthread_mutex_lock( &recurso[thid]);
       //Cuando se reciba una solicitud
-      solicitud=primero(buffer[thid]);
-      suprimirCola(&buffer[thid]);
+      if(!esVaciaCola(buffer[thid])){
+        solicitud=primero(buffer[thid]);
+        suprimirCola(&buffer[thid]);
+          printf("Soy el demonio del recurso %d. Gestiono solicitud de %d\n",thid, solicitud);
+      }
       pthread_mutex_unlock( &recurso[thid]);
-      printf("Soy el demonio del recurso %d. Gestiono solicitud de %d\n",thid, solicitud);
+
   }
   pthread_exit(NULL);
 }
