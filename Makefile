@@ -21,4 +21,4 @@ base: $(OBJS) base.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 clean:
-	$(RM) base
+	$(RM) base cola.o exclusionMutua contencionEspera 
