@@ -16,11 +16,13 @@
 pthread_mutex_t recurso[Nmax];
 
 void * trabajo(void * tid) { // Código para cada thread
-  int thid, i, j, k, ya, mis_recursos[Nmax];
+  int thid, i, j, k, ya;
   double x = 0;
   thid = (intptr_t) tid;
   srand(thid + time(NULL));
-  for (i = 0; i < Nmax; i++) { // Adquiero nuevos recursos
+  int Ri= (int)(Nmax) * (rand() / (RAND_MAX + 1.0)) + 1;
+  int mis_recursos[Ri];
+  for (i = 0; i < Ri; i++) { // Adquiero nuevos recursos
     ya = 0;
     while (ya == 0) { // Selecciono un recurso que no tengo
       j = (int)(Nmax) * (rand() / (RAND_MAX + 1.0));
@@ -46,7 +48,7 @@ void * trabajo(void * tid) { // Código para cada thread
     k = (int) Tmin + (Tmax - Tmin + 1) * (rand() / (RAND_MAX + 1.0)) + 1;
     sleep(k); // Espero un tiempo aleatorio
   }
-  for (i = 0; i < Nmax; i++) pthread_mutex_unlock( & recurso[mis_recursos[i]]);
+  for (i = 0; i < Ri; i++) pthread_mutex_unlock( & recurso[mis_recursos[i]]);
   printf("************ACABE! Soy %d\n", thid);
   pthread_exit(NULL);
 }
