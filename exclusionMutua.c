@@ -40,8 +40,9 @@ void * trabajo(void * tid) { // Código para cada thread
     printf("Soy %d y quiero el recurso %d\n", thid, j);
 
     pthread_mutex_lock(&recurso[j]); // Adquiero el recurso
-    insertarCola(&buffer[j],thid);
-    //mensaje[j]++;
+    while(insertarCola(&buffer[j],thid)==-1){
+      sleep(3);
+    }
     pthread_mutex_unlock( &recurso[j]);
 
     mis_recursos[i] = j; // Incluyo recurso en mi lista
@@ -62,21 +63,17 @@ void *trabajoDemonio (void * tid){
   int thid=(intptr_t)tid;
   int solicitud;
 
-  while(final!=Pmax){ //Esperamos a que acaben todos los hilos
-      while (esVaciaCola(buffer[thid]) && final!=Pmax){
-      //Espera mientras que no haya ninguna solicitud
-    }
-    //while(mensaje[thid]==0){}
+  while(final!=Pmax || !esVaciaCola(buffer[thid])){ //Realizamos tareas con la cola hasta que acaben todos los hilos y se hayan evaluado todas las solicitudes
+      while (esVaciaCola(buffer[thid]) && final!=Pmax){ //Incluimos la segunda condición debido a posibles carreras críticas
+        //Espera mientras que no haya ninguna solicitud
+      }
 
-    if(final!=Pmax){
       pthread_mutex_lock( &recurso[thid]);
       //Cuando se reciba una solicitud
       solicitud=primero(buffer[thid]);
       suprimirCola(&buffer[thid]);
-      mensaje[thid]--;
       pthread_mutex_unlock( &recurso[thid]);
       printf("Soy el demonio del recurso %d. Gestiono solicitud de %d\n",thid, solicitud);
-    }
   }
   pthread_exit(NULL);
 }
@@ -94,10 +91,7 @@ int main() {
 
   //Inicializamos los mutex del recurso
   for (i = 0; i < Nmax; i++) pthread_mutex_destroy( &recurso[i]);
-  for (i = 0; i < Nmax; i++){
-    pthread_mutex_init( &recurso[i], NULL);
-    mensaje[i]==0;
-  }
+  for (i = 0; i < Nmax; i++) pthread_mutex_init( &recurso[i], NULL);
 
   //Creamos Nmax demonios para cada recurso
 
@@ -109,6 +103,9 @@ int main() {
   for (i = 0; i < Pmax; i++) pthread_join(th[i], NULL);
   tiempo_fin = time(NULL);
   printf("Acabado en %d segundos \n", tiempo_fin - tiempo_ini);
-  for (i = 0; i < Nmax; i++) pthread_mutex_destroy( &recurso[i]);
+  for (i = 0; i < Nmax; i++){ //Destruimos los mutex y las colas
+    pthread_mutex_destroy( &recurso[i]);
+    destruyeCola(&buffer[i]);
+  }
   return EXIT_SUCCESS;
 }

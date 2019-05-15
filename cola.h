@@ -14,7 +14,7 @@ unsigned esVaciaCola(cola C);
 int primero(cola C);
 
 //Funciones de inserción/eliminación
-void insertarCola(cola *C, int E);
+int insertarCola(cola *C, int E);
 void suprimirCola(cola *C);
 
 #endif	// COLA_H
