@@ -26,6 +26,7 @@ void deshacerCiclo(int i, int j);
 int hayCiclo();
 int busquedaIguales(int *nodosVisitados);
 void DFS(int i, int *nodosVisitados);
+void imprimirGrafo();
 
 sem_t *comprobador;
 pthread_mutex_t recurso[Nmax], accesoGrafo;
@@ -48,18 +49,21 @@ void * trabajo(void * tid) { // Código para cada thread
     }
 
     mis_recursos[i] = j; // Incluyo recurso en mi lista
-    printf("Soy %d y quiero el recurso %d\n", thid, j);
     pthread_mutex_lock(&accesoGrafo);
-    G[thid][j + Nmax - 1] = 1; //Se añade una arista desde el hilo thid hasta el recurso j
+    printf("Soy %d y quiero el recurso %d\n", thid, j + Pmax);
+    G[thid][j + Pmax] = 1; //Se añade una arista desde el hilo thid hasta el recurso j
     filaModif = thid;
-    colModif = j + Nmax - 1;
+    colModif = j;
+    imprimirGrafo();
     sem_post(comprobador);
     pthread_mutex_unlock(&accesoGrafo);
 
     pthread_mutex_lock( & recurso[j]); // Adquiero el recurso
-    printf(" Soy %d y tengo el recurso %d\n", thid, j);
     pthread_mutex_lock(&accesoGrafo);
-    G[j + Nmax - 1][thid] = 1; //Se añade una arista desde el  recurso j hasta el hilo thid
+    printf(" Soy %d y tengo el recurso %d\n", thid, j + Pmax);
+    G[thid][j + Pmax] = 0;
+    G[j + Pmax][thid] = 1; //Se añade una arista desde el  recurso j hasta el hilo thid
+    imprimirGrafo();
     pthread_mutex_unlock(&accesoGrafo);
 
     for (k = 0; k < 10000; k++) x += sqrt(sqrt(k + 0.1)); // Trabajo intrascendente
@@ -96,6 +100,7 @@ int main() {
     visited[i]=0;
   }
 
+
   sem_unlink("Comprobador");
 
   fin = 0; //Variable para que el hilo comprobador sepa cuando terminar
@@ -123,16 +128,24 @@ int main() {
 
 void deshacerCiclo(int i, int j){
   printf("Libero el recurso %d \n", j);
+  for(int k=0; k < Pmax; k++)
+    G[j][k] = 0;
   pthread_mutex_unlock(&recurso[j]);
-  G[j][i] = 0;
 }
 
 int hayCiclo(){
   int *nodosVisitados;
   nodosVisitados = (int *)malloc((Nmax + Pmax)*sizeof(int));
+  for(int i=0; i < Nmax + Pmax; i++)
+    nodosVisitados[i] = -1;
 
+  nodosVisitados[visitados] = filaModif;
+  visitados++;
   DFS(filaModif, nodosVisitados);
-  printf("filaModif %d, nodosVisitados: ", filaModif);
+  for(int i=0; i < Nmax + Pmax; i++)
+    visited[i] = 0;
+
+  printf("filaModif %d, visitados %d, nodosVisitados: ", filaModif, visitados);
   for (int i = 0; i < Nmax + Pmax; i++)
     printf("%d ", nodosVisitados[i]);
   printf("\n");
@@ -141,6 +154,7 @@ int hayCiclo(){
     free(nodosVisitados);
     return 1;
   }
+  visitados = 0;
   free(nodosVisitados);
   return 0;
 }
@@ -166,4 +180,15 @@ void DFS(int i, int *nodosVisitados){
         DFS(j, nodosVisitados);
     }
   }
+}
+
+void imprimirGrafo(){
+
+  for (int i = 0; i < Pmax + Nmax; i++) {
+    for (int j = 0; j < Pmax + Nmax; j++) {
+      printf("%d ", G[i][j]);
+    }
+    printf("\n");
+  }
+
 }
