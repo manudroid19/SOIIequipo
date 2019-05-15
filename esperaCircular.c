@@ -18,11 +18,11 @@ void * trabajo(void * tid) { // Código para cada thread
   thid = (intptr_t) tid;
   srand(thid + time(NULL));
   Ri = (int)(Nmax) * (rand() / (RAND_MAX + 1.0)); //Numero de recursos aleatorios <=N
-  int i, j, k,mi_recurso=-1,rec=0;//inicializamos el recurso a -1 para provocar que se pueda asignar el primer recurso (0) al primer hilo que entra en la función trabajo
+  int j, k,mi_recurso=-1,rec=0;//inicializamos el recurso a -1 para provocar que se pueda asignar el primer recurso (0) al primer hilo que entra en la función trabajo
   double x = 0;
 
   for (int i=0;i<Ri;i++){
-  	j=rec;//Asigno el valor 
+  	j=rec;//Asigno el valor
 	rec++;
   	if (mi_recurso < j) mi_recurso = j; //Cambio el recurso del hilo en caso de que este nuevo (j) sea mayor que el que ya tenía.
     printf("Soy %d y quiero el recurso %d\n", thid, j);
