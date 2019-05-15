@@ -20,7 +20,7 @@ int final=0; //Variable de condición para cerrar los demonios
 
 int asignados[Nmax];//Array que indica a qué recurso puede acceder cada hilo
 
-void trabajo(void * tid) { // Código para cada thread
+void * trabajo(void * tid) { // Código para cada thread
   int thid, Ri;
   thid = (intptr_t) tid;
   srand(thid + time(NULL));
@@ -63,25 +63,26 @@ void trabajo(void * tid) { // Código para cada thread
 void *trabajoDemonio (void * tid){
   //Cada demonio tiene que tener una cola de solicitud
 
-  int thid=tid;
+  int thid=(intptr_t)tid;
   int solicitud;
 
   while(final!=Pmax){ //Esperamos a que acaben todos los hilos
-    while (esVaciaCola(buffer[thid] && final!=Pmax)){
+    while (esVaciaCola(buffer[thid]) && final!=Pmax){
       //Espera mientras que no haya ninguna solicitud
     }
-    if(final!=pmax){}
+    if(final!=Pmax){
       pthread_mutex_lock( & recurso[thid]);
       //Cuando se reciba una solicitud
       solicitud=primero(buffer[thid]);
       asignados[solicitud]=thid;  //Indicamos que puede acceder al recurso
       pthread_mutex_unlock( &recurso[thid]);
-    }      
+    }
 
     while(asignados[solicitud]==thid){
       //Mientras que no haya acabado de usar el recurso espera
     }
   }
+  pthread_exit(NULL);
 }
 
 

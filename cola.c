@@ -55,7 +55,7 @@ int primero(cola C)
 	return (C->frente)->sig->elemento;
     else
         printf("Error: cola vacía\n");
-
+    return -1;
 }
 
 void insertarCola(cola *C, int E)
