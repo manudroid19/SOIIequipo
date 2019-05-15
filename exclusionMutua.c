@@ -12,9 +12,9 @@
 #define Nmax 4 // Recursos
 #define Pmax 3 // Threads
 
-//mqd_t colas [Nmax];//Para las solicitudes
+
 pthread_mutex_t recurso[Nmax];
-//pthread_mutex_t demonio[Nmax];
+
 cola buffer[Nmax];
 int final=0; //Variable de condición para cerrar los demonios
 
@@ -38,8 +38,9 @@ void * trabajo(void * tid) { // Código para cada thread
     }
 
     printf("Soy %d y quiero el recurso %d\n", thid, j);
-
+printf("Estoy aquí");
     pthread_mutex_lock( & recurso[j]); // Adquiero el recurso
+
     insertarCola(buffer[j],thid);
     pthread_mutex_unlock( &recurso[j]);
 

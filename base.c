@@ -37,7 +37,7 @@ void * trabajo(void * tid) { // Código para cada thread
     k = (int) Tmin + (Tmax - Tmin + 1) * (rand() / (RAND_MAX + 1.0)) + 1;
     sleep(k); // Espero un tiempo aleatorio
   }
-  for (i = 0; i < Nmax; i++) pthread_mutex_unlock( & recurso[mis_recursos[i]]);
+  for (i = 0; i < Ri; i++) pthread_mutex_unlock( & recurso[mis_recursos[i]]);
   printf("************ACABE! Soy %d\n", thid);
   pthread_exit(NULL);
 }
